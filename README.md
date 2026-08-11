@@ -13,13 +13,15 @@
 
 ## Comandos
 
-| Comando | Função |
-| ------- | ------ |
-| `/help` | Exibe a lista de comandos disponíveis |
-| `/clear` | Limpa apenas o terminal do usuário que executou o comando |
-| `/w` | Limpa o terminal de todos os clientes conectados |
-| `/users` | Exibe a lista de usuários conectados ao servidor |
-| `/quit` | Encerra a conexão com o servidor |
+| Comando | Função | Escopo |
+| ------- | ------ | ------ |
+| `/help` | Exibe a lista de comandos disponíveis | Local |
+| `/clear` | Limpa o terminal atual | Local |
+| `/wc` | Limpa os terminais de todos os usuários conectados | Global |
+| `/wq` | Encerra a conexão de todos os usuários conectados | Global |
+| `/users` | Exibe a lista de usuários conectados | Servidor |
+| `/t usuario mensagem` | Envia uma mensagem privada para um usuário específico | Privado |
+| `/quit` | Encerra a conexão do usuário atual | Local |
 
 ## Instalação
 ```bash
