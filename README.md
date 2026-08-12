@@ -27,36 +27,66 @@
   - O servidor é o ponto central da comunicação, o servidor cria um SOCKET TCP e fica esperando conexões.
   - O cliente cria também um socket TCP e conecta ao servidor pelo IP fornecido
   - ou seja a conexão fica assim
-    - Cliente(192.168.X.X, user="João") --> Servidor(192.168.X.X) --> Cliente(192.168.X.X, user="Ana")
+    - Cliente(192.168.X.X, user="João") --> TCP --> Servidor(192.168.X.X) --> TCP --> Cliente(192.168.X.X, user="Ana")
 
 - O caminho das mensagens é bem simples:
   - O cliente ele manda um "Olá"
   - A mensagem chega no servidor
   - O servidor distribui para todos os usuários conectados
+ ```
+┌───────────┐
+│   Alice   │
+│  Client   │
+└─────┬─────┘
+      │
+      │ TCP
+      │ "Olá"
+      ▼
+┌───────────────┐
+│    SERVER     │
+│               │
+│ recebe "Olá"  │
+└───────┬───────┘
+        │
+        │ broadcast
+        ├───────────────┐
+        │               │
+        ▼               ▼
+   ┌─────────┐     ┌─────────┐
+   │  Bob    │     │  Carlos │
+   │ Client  │     │ Client  │
+   └─────────┘     └─────────┘
+```
 
-
-  - E o funcionamento do /t ele só especifica o cliente que vai receber
+-E o funcionamento do /t ele só especifica o cliente que vai receber
  
 ## Arquitetura
-
-server.py
-└── Servidor TCP
-    ├── Gerencia conexões
-    ├── Gerencia clientes
-    ├── Recebe mensagens
-    ├── Distribui mensagens
-    └── Processa comandos globais
-
-client.py
-└── Cliente TCP
-    ├── Conecta ao servidor
-    ├── Envia mensagens
-    ├── Recebe mensagens
-    └── Processa comandos locais
-
-Comunicação:
-
-Cliente → TCP → Servidor → TCP → Cliente(s)
+```
+                         REDE LOCAL
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│                 ┌─────────────────┐                   │
+│                 │     SERVER      │                   │
+│                 │                 │                   │
+│                 │    server.py    │                   │
+│                 │                 │                   │
+│                 │    socket       │                   │
+│                 │    threading    │                   │
+│                 └────────┬────────┘                   │
+│                          │                             │
+│              ┌───────────┼───────────┐                │
+│              │           │           │                │
+│              ▼           ▼           ▼                │
+│         ┌─────────┐ ┌─────────┐ ┌─────────┐           │
+│         │ Client  │ │ Client  │ │ Client  │           │
+│         │    A    │ │    B    │ │    C    │           │
+│         │         │ │         │ │         │           │
+│         │client.py│ │client.py│ │client.py│           │
+│         └─────────┘ └─────────┘ └─────────┘           │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+> Resumindo é um servidor de uma rede local privada para enviar mensagens de texto simples usando o protocolo TCP/IP
 
 ## Comandos
 
