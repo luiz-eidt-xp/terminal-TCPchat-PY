@@ -24,7 +24,67 @@
   - Possibilitar que hosts de um mesma rede conversem por terminal usando um servidor central.
 
 ## Funcionamento
-  - Temos o servidor central que distribui as mensagens para os clientes conectados
+  - O servidor é o ponto central da comunicação, o servidor cria um SOCKET TCP e fica esperando conexões.
+  - O cliente cria também um socket TCP e conecta ao servidor pelo IP fornecido
+  - ou seja a conexão fica assim:
+  Cliente                         Servidor
+   │                               │
+   │ ─── SYN ────────────────────> │
+   │ <── SYN + ACK ─────────────── │
+   │ ─── ACK ─────────────────────>│
+   │                               │
+   │       conexão estabelecida    │
+
+- O caminho das mensagens é bem simples:
+┌───────────┐
+│   Alice   │
+│  Client   │
+└─────┬─────┘
+      │
+      │ TCP
+      │ "Olá"
+      ▼
+┌───────────────┐
+│    SERVER     │
+│               │
+│ recebe "Olá"  │
+└───────┬───────┘
+        │
+        │ broadcast
+        ├───────────────┐
+        │               │
+        ▼               ▼
+   ┌─────────┐     ┌─────────┐
+   │  Bob    │     │  Carlos │
+   │ Client  │     │ Client  │
+   └─────────┘     └─────────┘
+
+  - E o funcionamento do /t ele só especifica o cliente que vai receber
+ 
+## Arquitetura
+                         REDE LOCAL
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│                 ┌─────────────────┐                   │
+│                 │     SERVER      │                   │
+│                 │                 │                   │
+│                 │    server.py    │                   │
+│                 │                 │                   │
+│                 │    socket       │                   │
+│                 │    threading    │                   │
+│                 └────────┬────────┘                   │
+│                          │                             │
+│              ┌───────────┼───────────┐                │
+│              │           │           │                │
+│              ▼           ▼           ▼                │
+│         ┌─────────┐ ┌─────────┐ ┌─────────┐           │
+│         │ Client  │ │ Client  │ │ Client  │           │
+│         │    A    │ │    B    │ │    C    │           │
+│         │         │ │         │ │         │           │
+│         │client.py│ │client.py│ │client.py│           │
+│         └─────────┘ └─────────┘ └─────────┘           │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 
 ## Comandos
 
