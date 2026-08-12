@@ -158,7 +158,14 @@ terminal-TCPchat-PY/
 - As mensagens não são enviadas com criptografia, os pacotes são enviados usando texto puro.
 - Podem ser interceptados usando uma ferramenta como "WireShark".
 - Não a autenticação, qualquer um que ter o Client.py(ou algum arquivo que faça essa função), tiver a porta e o ip do servidor e estiver conectada na mesma rede pode conectar nas mensagens.
-- 
+
+## Versões
+| Versão | Features |
+| -------- | -------------- |
+| v0.1 | Teste do projeto |
+| v0.2 | Mudei a porta para 53721 |
+| v0.3 | Projeto funcionando tudo OK |
+
 ## Limitações
 - Somente hosts na mesma rede podem conversar entre si
 - Meio bugado as vezes
