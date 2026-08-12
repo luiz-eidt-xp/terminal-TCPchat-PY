@@ -36,55 +36,33 @@
    │       conexão estabelecida    │
 
 - O caminho das mensagens é bem simples:
-┌───────────┐
-│   Alice   │
-│  Client   │
-└─────┬─────┘
-      │
-      │ TCP
-      │ "Olá"
-      ▼
-┌───────────────┐
-│    SERVER     │
-│               │
-│ recebe "Olá"  │
-└───────┬───────┘
-        │
-        │ broadcast
-        ├───────────────┐
-        │               │
-        ▼               ▼
-   ┌─────────┐     ┌─────────┐
-   │  Bob    │     │  Carlos │
-   │ Client  │     │ Client  │
-   └─────────┘     └─────────┘
+  - O cliente ele manda um "Olá"
+  - A mensagem chega no servidor
+  - O servidor distribui para todos os usuários conectados
+
 
   - E o funcionamento do /t ele só especifica o cliente que vai receber
  
 ## Arquitetura
-                         REDE LOCAL
-┌─────────────────────────────────────────────────────────┐
-│                                                         │
-│                 ┌─────────────────┐                   │
-│                 │     SERVER      │                   │
-│                 │                 │                   │
-│                 │    server.py    │                   │
-│                 │                 │                   │
-│                 │    socket       │                   │
-│                 │    threading    │                   │
-│                 └────────┬────────┘                   │
-│                          │                             │
-│              ┌───────────┼───────────┐                │
-│              │           │           │                │
-│              ▼           ▼           ▼                │
-│         ┌─────────┐ ┌─────────┐ ┌─────────┐           │
-│         │ Client  │ │ Client  │ │ Client  │           │
-│         │    A    │ │    B    │ │    C    │           │
-│         │         │ │         │ │         │           │
-│         │client.py│ │client.py│ │client.py│           │
-│         └─────────┘ └─────────┘ └─────────┘           │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+
+server.py
+└── Servidor TCP
+    ├── Gerencia conexões
+    ├── Gerencia clientes
+    ├── Recebe mensagens
+    ├── Distribui mensagens
+    └── Processa comandos globais
+
+client.py
+└── Cliente TCP
+    ├── Conecta ao servidor
+    ├── Envia mensagens
+    ├── Recebe mensagens
+    └── Processa comandos locais
+
+Comunicação:
+
+Cliente → TCP → Servidor → TCP → Cliente(s)
 
 ## Comandos
 
