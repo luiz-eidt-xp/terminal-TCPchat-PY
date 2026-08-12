@@ -26,14 +26,8 @@
 ## Funcionamento
   - O servidor é o ponto central da comunicação, o servidor cria um SOCKET TCP e fica esperando conexões.
   - O cliente cria também um socket TCP e conecta ao servidor pelo IP fornecido
-  - ou seja a conexão fica assim:
-  Cliente                         Servidor
-   │                               │
-   │ ─── SYN ────────────────────> │
-   │ <── SYN + ACK ─────────────── │
-   │ ─── ACK ─────────────────────>│
-   │                               │
-   │       conexão estabelecida    │
+  - ou seja a conexão fica assim
+    - Cliente(192.168.X.X, user="João") --> Servidor(192.168.X.X) --> Cliente(192.168.X.X, user="Ana")
 
 - O caminho das mensagens é bem simples:
   - O cliente ele manda um "Olá"
