@@ -6,7 +6,7 @@ O objetivo era eu criar um jeito de se comunicar por terminal com outros hosts d
 import socket
 import threading
 
-PORT = 53721
+PORT = 5000
 
 clients = []
 names = []
