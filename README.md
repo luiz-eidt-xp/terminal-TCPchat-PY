@@ -167,4 +167,4 @@ terminal-TCPchat-PY/
 - Aprendi a mexer com as bibliotecas scoket e threading no python, e aprendi o funcionamento de um servidor de chat usando TCP/IP, com comandos personalizados de terminal
 
 > Licença
-*Copyright: cloudsyn.ps1*
+*Copyright: xpcloud.ps1*
