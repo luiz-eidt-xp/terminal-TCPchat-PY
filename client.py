@@ -7,8 +7,7 @@ import threading
 import os
 import sys
 
-
-PORT = 5000
+PORT = 53721
 
 running = True
 
@@ -36,63 +35,110 @@ def show_header(): # Função que mostra o topo do programa, aparece sempre
 def receive_messages(): # Recebe as mensagens do servidor e mostra para o usuário, também trata os comandos recebidos do servidor
     global running
 
+    buffer = ""
+
     while running:
         try:
             data = client.recv(4096)
 
             if not data:
-                print("\n[!] Servidor desconectado.")
+                print(
+                    "\n[!] Servidor desconectado."
+                )
                 running = False
                 break
 
-            message = data.decode("utf-8")
+            buffer += data.decode("utf-8")
 
-            if message == "__CLEAR__": # comando /clear
-                clear_screen()
-                show_header()
-                continue
+            while "\n" in buffer:
+                message, buffer = buffer.split(
+                    "\n",
+                    1
+                )
 
-            if message == "__CLEAR_ALL__": # comando /wc
-                clear_screen()
-                show_header()
-                print("[WORLD CLEAR]")
-                print()
-                continue
+                message = message.strip()
 
-            if message == "__WORLD_QUIT__": # comando /wq
-                clear_screen()
-                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-                print("                WORLD QUIT")
-                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-                print()
-                print("[SERVIDOR] wq executado com sucesso")
-                print()
-                running = False
+                if not message:
+                    continue
 
-                try:
-                    client.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
+                if message == "__CLEAR__": # comando /clear
+                    clear_screen()
+                    show_header()
+                    continue
 
-                try:
-                    client.close()
-                except:
-                    pass
+                if message == "__CLEAR_ALL__": # comando /wc
+                    clear_screen()
+                    show_header()
+                    print(
+                        "[WORLD CLEAR]"
+                    )
+                    print()
+                    continue
 
-                os._exit(0)
+                if message == "__WORLD_QUIT__": # comando /wq
+                    clear_screen()
 
-            print(f"\r{message}")
-            print("> ", end="", flush=True)
+                    print(
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                    )
+                    print(
+                        "                WORLD QUIT"
+                    )
+                    print(
+                        "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                    )
+                    print()
+                    print(
+                        "[SERVIDOR] "
+                        "wq executado com sucesso"
+                    )
+                    print()
+
+                    running = False
+
+                    try:
+                        client.shutdown(
+                            socket.SHUT_RDWR
+                        )
+                    except:
+                        pass
+
+                    try:
+                        client.close()
+                    except:
+                        pass
+
+                    os._exit(0)
+
+                print(
+                    f"\r{message}"
+                )
+
+                print(
+                    "> ",
+                    end="",
+                    flush=True
+                )
 
         except ConnectionResetError:
             running = False
             break
 
         except OSError:
+            running = False
+            break
+
+        except UnicodeDecodeError:
+            print(
+                "\n[ERRO] Dados invalidos recebidos."
+            )
+            running = False
             break
 
         except Exception as e:
-            print(f"\n[ERRO] {e}")
+            print(
+                f"\n[ERRO] {e}"
+            )
             running = False
             break
 
@@ -103,11 +149,29 @@ print("           PYTHON TERMINAL CHAT")
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 print()
 
-SERVER = input("IP do servidor: ").strip()
+SERVER = input(
+    "IP do servidor: "
+).strip()
 
 if not SERVER:
-    print("[ERRO] IP invalido.")
+    print(
+        "[ERRO] IP invalido."
+    )
     sys.exit()
+
+if ":" in SERVER:
+    SERVER, port_text = SERVER.rsplit(
+        ":",
+        1
+    )
+
+    try:
+        PORT = int(port_text)
+    except ValueError:
+        print(
+            "[ERRO] Porta invalida."
+        )
+        sys.exit()
 
 client = socket.socket(
     socket.AF_INET,
@@ -123,49 +187,111 @@ try:
 
 except socket.timeout:
     print()
-    print("[ERRO] Tempo limite de conexao.")
-    print(f"[INFO] Servidor: {SERVER}:{PORT}")
+    print(
+        "[ERRO] Tempo limite de conexao."
+    )
+    print(
+        f"[INFO] Servidor: "
+        f"{SERVER}:{PORT}"
+    )
     sys.exit()
 
 except ConnectionRefusedError: # Caso aconteça de não conectar, aparece para o usuário seguir esses passos
     print()
-    print("[ERRO] O servidor recusou a conexao.")
+    print(
+        "[ERRO] O servidor recusou a conexao."
+    )
     print()
     print("Verifique se:")
-    print("  - server.py esta rodando")
-    print("  - o IP esta correto")
-    print(f"  - a porta {PORT} esta acessivel")
+    print(
+        "  - server.py esta rodando"
+    )
+    print(
+        "  - o IP esta correto"
+    )
+    print(
+        f"  - a porta {PORT} "
+        "esta acessivel"
+    )
+    print(
+        "  - o firewall permite conexoes"
+    )
     sys.exit()
 
 except OSError as e:
     print()
-    print(f"[ERRO] Nao foi possivel conectar: {e}")
+    print(
+        f"[ERRO] Nao foi possivel "
+        f"conectar: {e}"
+    )
+    print()
+    print(
+        "Possiveis causas:"
+    )
+    print(
+        "  - IP incorreto"
+    )
+    print(
+        "  - porta bloqueada"
+    )
+    print(
+        "  - firewall"
+    )
+    print(
+        "  - hosts em redes diferentes"
+    )
     sys.exit()
 
 finally:
     client.settimeout(None)
 
 
-name = input("Seu nome: ").strip()
+name = input(
+    "Seu nome: "
+).strip()
 
 if not name:
     name = "Anonimo"
 
 client.sendall(
-    name.encode("utf-8")
+    (name + "\n").encode("utf-8")
 )
 
 print()
-print("Conectado ao servidor.") # Aparece essa msg no topo quando você conecta ao servidor
+print(
+    "Conectado ao servidor."
+) # Aparece essa msg no topo quando você conecta ao servidor
+
 print()
 print("Comandos:")
-print("  /help              - Mostra os comandos")
-print("  /clear             - Limpa seu terminal")
-print("  /wc                - Limpa todos os terminais")
-print("  /wq                - Encerra todos os clientes")
-print("  /users             - Lista usuarios")
-print("  /t usuario msg     - Envia um TELL")
-print("  /quit              - Sair")
+print(
+    "  /help              - "
+    "Mostra os comandos"
+)
+print(
+    "  /clear             - "
+    "Limpa seu terminal"
+)
+print(
+    "  /wc                - "
+    "Limpa todos os terminais"
+)
+print(
+    "  /wq                - "
+    "Encerra todos os clientes"
+)
+print(
+    "  /users             - "
+    "Lista usuarios"
+)
+print(
+    "  /t usuario msg     - "
+    "Envia um TELL"
+)
+print(
+    "  /quit              - "
+    "Sair"
+)
 print()
 
 thread = threading.Thread(
@@ -181,15 +307,38 @@ while running:
 
         if message == "/help":
             print()
-            print("Comandos disponiveis:")
+            print(
+                "Comandos disponiveis:"
+            )
             print()
-            print("  /help              - Mostra os comandos")
-            print("  /clear             - Limpa seu terminal")
-            print("  /wc                - Limpa todos os terminais")
-            print("  /wq                - Encerra todos os clientes")
-            print("  /users             - Lista usuarios")
-            print("  /t usuario msg     - Envia um TELL")
-            print("  /quit              - Sair")
+            print(
+                "  /help              - "
+                "Mostra os comandos"
+            )
+            print(
+                "  /clear             - "
+                "Limpa seu terminal"
+            )
+            print(
+                "  /wc                - "
+                "Limpa todos os terminais"
+            )
+            print(
+                "  /wq                - "
+                "Encerra todos os clientes"
+            )
+            print(
+                "  /users             - "
+                "Lista usuarios"
+            )
+            print(
+                "  /t usuario msg     - "
+                "Envia um TELL"
+            )
+            print(
+                "  /quit              - "
+                "Sair"
+            )
             print()
             continue
 
@@ -201,13 +350,15 @@ while running:
         if message == "/quit":
             try:
                 client.sendall(
-                    "/quit".encode("utf-8")
+                    "/quit\n".encode("utf-8")
                 )
             except:
                 pass
 
             print()
-            print("Desconectando...")
+            print(
+                "Desconectando..."
+            )
 
             running = False
             break
@@ -216,16 +367,18 @@ while running:
             continue
 
         client.sendall(
-            message.encode("utf-8")
+            (message + "\n").encode("utf-8")
         )
 
     except KeyboardInterrupt:
         print()
-        print("Desconectando...")
+        print(
+            "Desconectando..."
+        )
 
         try:
             client.sendall(
-                "/quit".encode("utf-8")
+                "/quit\n".encode("utf-8")
             )
         except:
             pass
@@ -235,19 +388,25 @@ while running:
 
     except BrokenPipeError:
         print()
-        print("[ERRO] Conexao perdida.")
+        print(
+            "[ERRO] Conexao perdida."
+        )
         running = False
         break
 
     except OSError:
         print()
-        print("[ERRO] Conexao encerrada.")
+        print(
+            "[ERRO] Conexao encerrada."
+        )
         running = False
         break
 
 
 try:
-    client.shutdown(socket.SHUT_RDWR)
+    client.shutdown(
+        socket.SHUT_RDWR
+    )
 except:
     pass
 
@@ -256,4 +415,6 @@ try:
 except:
     pass
 
-print("Conexao encerrada.")
+print(
+    "Conexao encerrada."
+)
